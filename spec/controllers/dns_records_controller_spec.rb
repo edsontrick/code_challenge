@@ -349,6 +349,50 @@ RSpec.describe Api::V1::DnsRecordsController, type: :controller do
   end
 
   describe '#create' do
-    # TODO
+    let(:ip) { '8.8.8.8' }
+    let(:google) { 'google.com' }
+    let(:testing) { 'test.com' }
+    let(:brasil) { 'brasil.com' }
+
+    let(:payload) do
+      {
+        dns_records: {
+          ip: ip,
+          hostnames_attributes: [
+            { hostname: google },
+            { hostname: testing },
+            { hostname: brasil }
+          ]
+        }
+      }.to_json
+    end
+
+    let(:without_ip_payload) do
+      {
+        dns_records: {
+          ip: nil
+        }
+      }.to_json
+    end
+
+    context 'with the required params' do
+      it 'responds with valid response' do
+        request.accept = 'application/json'
+        request.content_type = 'application/json'
+        post(:create, body: payload, format: :json)
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'without ip param' do
+      it 'responds with an error response' do
+        request.accept = 'application/json'
+        request.content_type = 'application/json'
+        post(:create, body: without_ip_payload, format: :json)
+
+        expect(response).to have_http_status(:internal_server_error)
+      end
+    end
   end
 end
